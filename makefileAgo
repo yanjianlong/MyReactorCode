@@ -1,0 +1,17 @@
+#包含其他makefile文件
+include
+serverobject = main.o TcpServer.o mysocket.o
+#all:
+#	echo serverobject=${serverobject}
+debugger = -g -c
+server : ${serverobject}
+	g++ ${serverobject} -o server
+mysocket.o : mysocket.cpp
+#	g++ ${debugger} mysocket.cpp
+TcpServer.o : TcpServer.cpp
+#	g++ ${debugger} TcpServer.cpp
+main.o : main.cpp
+#	g++ ${debugger} main.cpp
+.PHONY : clean
+clean :
+	rm -f server *.o

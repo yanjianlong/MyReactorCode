@@ -1,9 +1,12 @@
-src := $(shell ls *.cpp) 
-objs := $(patsubst %.cpp, %.o, $(src)) 
-test : $(objs)
+src := ${shell ls *.cpp}
+objpath = ./obj/%.o
+srcpath = %.cpp
+objs := ${patsubst ${srcpath}, ${objpath}, ${src}}
+exefile := ./bin/server
+${exefile} : ${objs}
 	g++ -o $@ $^ 
-%.o : %.c
+${objpath} : ${srcpath}
 	g++ -c -g -o $@ $<
 .PTHONY : clean
 clean:
-	rm -f test *.o
+	rm -f ${exefile} ${objs}
