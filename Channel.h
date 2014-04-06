@@ -23,6 +23,8 @@ public:
 	bool handleEvent(const int& epollfd);
 	// 回调函数
 	void setCallBackFunction(IChannelCallBack* callBack);
+	// 获取套接字
+	int get_Socket();
 };
 
 #endif

@@ -41,10 +41,10 @@ bool Channel::handleEvent(const int& epollfd)
 	switch(m_recvEvent_)
 	{
 	case EPOLLIN:		// 可读
-		std::cout << "EPOLLIN" << std::endl;
+		// std::cout << "EPOLLIN" << std::endl;
 		{
-			// 陶杰字是否还有效
-			if(m_CallBackFun_->CallBackFunction(m_socket_))
+			// 套接字字是否还有效
+			if(m_CallBackFun_->ChannelCallBack(m_socket_))
 			{
 				return true;
 			}
@@ -52,9 +52,6 @@ bool Channel::handleEvent(const int& epollfd)
 			{
 				// 套接字无效
 				epoll_ctl(epollfd, EPOLL_CTL_DEL, m_socket_, NULL);
-				close(m_socket_);
-				std::cout << "(" << m_socket_ << "):连接关闭，正在删除." << std::endl;
-				m_socket_ = -1;
 				return false;
 			}
 		}
@@ -85,4 +82,9 @@ bool Channel::handleEvent(const int& epollfd)
 		break;
 	}
 	return true;
+}
+
+int Channel::get_Socket()
+{
+	return m_socket_;
 }
