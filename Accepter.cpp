@@ -28,7 +28,7 @@ bool Accepter::Run(const int& epollfd)
 	}
 	Channel* pAccepterChannel = new Channel(m_serverSocket_.get_Socket());
 	pAccepterChannel->setCallBackFunction(this);
-	if(pAccepterChannel->enableEvent(epollfd, EPOLLIN | EPOLLET))
+	if(Epoll::GetInstance()->AddEpollEvent(pAccepterChannel, EPOLLIN | EPOLLET))
 		return true;
 	else 
 	{
@@ -64,23 +64,6 @@ bool Accepter::ChannelCallBack(const int& thesocket)
 	else
 	{
 		std::cout << "error : Accepter ChannelCallBack" << std::endl;
-		// const int MAX_BUFFER_LENGTH = 1024;
-		// char theBuffer[MAX_BUFFER_LENGTH] = {0};
-		// int readNumber = read(thesocket, theBuffer, MAX_BUFFER_LENGTH - 1);
-		// if(readNumber > 0)
-		// {
-		// 	std::cout << "(" << thesocket << ") read " << readNumber << "chars : " 
-		// 				<< theBuffer << std::endl;
-		// 	int writeNumber = write(thesocket, theBuffer, readNumber + 1);
-		// 	std::cout << "(" << thesocket << ") write:" << theBuffer << std::endl;
-		// }
-		// else
-		// {
-		// 	close(thesocket);
-		// 	std::cout << "(" << thesocket << ") close; " << std::endl;
-		// 	return false;
-		// }
-
 	}
 	return false;
 }

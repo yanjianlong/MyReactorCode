@@ -3,6 +3,7 @@
 #include "mysocket.h"
 #include "IChannelCallBack.h"
 #include "Channel.h"
+#include "Epoll.h"
 class TcpConnect 
 	: public IChannelCallBack
 {
@@ -18,7 +19,7 @@ public:
 	~TcpConnect();
 	// 回调的信息处理
 	bool ChannelCallBack(const int& thesocket);
-	bool Run(const int& epollfd, const int& thesocket);
+	bool Run(const int& thesocket);
 	int get_Socket();
 };
 

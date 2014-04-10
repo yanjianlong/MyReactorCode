@@ -19,10 +19,15 @@ bool TcpConnect::ChannelCallBack(const int& thesocket)
 	{
 		std::cout << m_ipAddress_ << ":" << m_port_ 
 				<< "read string : " << buffer << std::endl;
-		write(thesocket, buffer, readLength + 1);
-		std::cout << "write to " << m_ipAddress_ << ":" << m_port_ 
-				 << " string : " << buffer << std::endl; 
-		return true;
+		std::string SendString = "HTTP/1.1 200 OK\r\nServer: 请叫我捡龙眼\r\n"
+								"Connection:close\r\n\r\n"
+								"<html>"
+									"<head><title>wc is rubbish</title></head>"
+									"<body><font size=+4>justtest</font></body>"
+								"</html>";
+		write(thesocket, SendString.c_str(), SendString.length() + 1);
+		std::cout << m_ipAddress_ << ":" << m_port_ << " close。" << std::endl;
+		return false;		// 关闭套接字
 	}
 	else
 	{
@@ -31,11 +36,11 @@ bool TcpConnect::ChannelCallBack(const int& thesocket)
 	return false;
 }
 
-bool TcpConnect::Run(const int& epollfd, const int& thesocket)
+bool TcpConnect::Run(const int& thesocket)
 {
 	Channel* pCurChannel = new Channel(thesocket);
 	pCurChannel->setCallBackFunction(this);
-	return pCurChannel->enableEvent(epollfd, EPOLLIN | EPOLLET);
+	return Epoll::GetInstance()->AddEpollEvent(pCurChannel, EPOLLIN | EPOLLET);
 }
  int TcpConnect::get_Socket()
  {

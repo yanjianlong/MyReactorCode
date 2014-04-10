@@ -3,7 +3,6 @@
 Channel::Channel(const int& thesocket)
 	: m_CallBackFun_(NULL)
 	, m_socket_(thesocket)
-	, m_waiteEvent_(0)
 {}
 Channel::~Channel()
 {}
@@ -16,24 +15,6 @@ void Channel::setRecvEvent(const int& theEvent)
 void Channel::setCallBackFunction(IChannelCallBack* callBack)
 {
 	m_CallBackFun_ = callBack;
-}
-
-bool Channel::enableEvent(const int& epollfd, const int& theEvent)
-{
-	return update(epollfd, theEvent);
-}
-
-bool Channel::update(const int& epollfd, const int& theEvent)
-{
-	m_waiteEvent_ = m_waiteEvent_ | theEvent;
-	if(m_socket_ == -1)
-		return false;
-	epoll_event ev;
-	ev.data.ptr = this;
-	ev.events = m_waiteEvent_;
-	if(0 == epoll_ctl(epollfd, EPOLL_CTL_ADD, m_socket_, &ev))
-		return true;
-	return false;
 }
 
 bool Channel::handleEvent(const int& epollfd)
