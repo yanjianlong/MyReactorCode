@@ -1,7 +1,7 @@
 #include "EventLoop.h"
 EventLoop::EventLoop()
 	: m_Quit_(false)
-	//, m_callback_(NULL)
+	, m_deleteConnect_(NULL)
 {
 }
 
@@ -24,9 +24,8 @@ void EventLoop::Loop()
 			else
 			{
 				int socketfd = (*theBegin)->get_Socket();
-				//if(m_callback_)
-					//m_callback_(socketfd);
-				// tcpconnect doesn't delete
+				if(m_deleteConnect_)
+					m_deleteConnect_->DeleteConnectCallBack(socketfd);
 				close(socketfd);
 				delete (*theBegin);
 			}
@@ -45,9 +44,9 @@ int EventLoop::get_EpollFD()
 	return Epoll::GetInstance()->get_EpollFD();
 }
 
-void EventLoop::set_CallBack(EpollEventCallBack theCallBack)
+void EventLoop::set_CallBack(IAccepterCallBack* theCallBack)
 {
-	//m_callback_ = theCallBack;
+	m_deleteConnect_ = theCallBack;
 }
 
 void EventLoop::CloseEventLoop()

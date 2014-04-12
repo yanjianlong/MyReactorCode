@@ -1,12 +1,12 @@
 #ifndef __EVENTLOOP_H__
 #define __EVENTLOOP_H__
 #include "Epoll.h"
-#include "IEpollEventCallBack.h"
+#include "IAccepterCallBack.h"
 class EventLoop 
 {
 private:
 	bool m_Quit_;
-	//EpollEventCallBack m_callback_;
+	IAccepterCallBack* m_deleteConnect_;
 public:
 	EventLoop();
 	~EventLoop();
@@ -19,7 +19,7 @@ public:
 	int get_EpollFD();
 
 	// 回调
-	void set_CallBack(EpollEventCallBack theCallBack);
+	void set_CallBack(IAccepterCallBack* theCallBack);
 
 	// 关闭
 	void CloseEventLoop();

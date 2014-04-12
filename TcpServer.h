@@ -25,6 +25,6 @@ public:
 							const std::string& ipaddress,
 							const int& port);	// 回调函数
 
-	bool DeleteConnect(const int& thesocket);
+	bool DeleteConnectCallBack(const int& thesocket);
 };
 #endif

@@ -54,11 +54,11 @@ void TcpServer::Start()
 {
 	m_Accepter_->set_CallBackFunction(this);
 	m_Accepter_->Run(m_loop_->get_EpollFD());
-	//m_loop_->set_CallBack(m_CallBack_);
+	m_loop_->set_CallBack(this);
 	m_loop_->Loop();
 }
 
-bool TcpServer::DeleteConnect(const int& thesocket)
+bool TcpServer::DeleteConnectCallBack(const int& thesocket)
 {
 	if(thesocket == m_Accepter_->get_Socket())
 	{
@@ -71,6 +71,7 @@ bool TcpServer::DeleteConnect(const int& thesocket)
 	{
 		close(theFind->first);;
 		delete theFind->second;
+		std::cout << "delete socket " << theFind->first << std::endl;
 		m_MapTcpConnect_.erase(theFind);
 	}
 	return false;
