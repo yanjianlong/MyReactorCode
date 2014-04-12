@@ -28,6 +28,7 @@ void EventLoop::Loop()
 					m_deleteConnect_->DeleteConnectCallBack(socketfd);
 				close(socketfd);
 				delete (*theBegin);
+				*theBegin = NULL;
 			}
 		}
 	}

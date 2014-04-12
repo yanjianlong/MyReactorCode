@@ -34,6 +34,7 @@ bool Accepter::Run(const int& epollfd)
 	{
 		std::cout << "ERROR Accepter : enableEvent()" << std::endl;
 		delete pAccepterChannel;
+		pAccepterChannel = NULL;
 		return false;
 	}
 }

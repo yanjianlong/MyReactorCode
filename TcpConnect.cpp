@@ -5,6 +5,7 @@ TcpConnect::TcpConnect(const int& thesocket,
 	: m_socket_(thesocket)
 	, m_ipAddress_(ipaddress)
 	, m_port_(port)
+	, m_UserServerCallBack_(NULL)
 {}
 
 TcpConnect::~TcpConnect()
@@ -17,16 +18,7 @@ bool TcpConnect::ChannelCallBack(const int& thesocket)
 	int readLength = read(thesocket, buffer, 1024);
 	if(readLength > 0)
 	{
-		std::cout << m_ipAddress_ << ":" << m_port_ 
-				<< "read string : " << buffer << std::endl;
-		std::string SendString = "HTTP/1.1 200 OK\r\nServer: 请叫我捡龙眼\r\n"
-								"Connection:close\r\n\r\n"
-								"<html>"
-									"<head><title>wc is rubbish</title></head>"
-									"<body><font size=+4>justtest</font></body>"
-								"</html>";
-		write(thesocket, SendString.c_str(), SendString.length() + 1);
-		std::cout << m_ipAddress_ << ":" << m_port_ << " close。" << std::endl;
+		handleSendMessageCallBack(thesocket, buffer);
 		return false;		// 关闭套接字
 	}
 	else
@@ -42,7 +34,49 @@ bool TcpConnect::Run(const int& thesocket)
 	pCurChannel->setCallBackFunction(this);
 	return Epoll::GetInstance()->AddEpollEvent(pCurChannel, EPOLLIN | EPOLLET);
 }
- int TcpConnect::get_Socket()
- {
- 	return m_socket_;
- }
+int TcpConnect::get_Socket()
+{
+	return m_socket_;
+}
+
+void TcpConnect::set_ServerCallBack(IServerUserCallBack* theCallBack)
+{
+	m_UserServerCallBack_ = theCallBack;
+}
+
+void TcpConnect::handleConnnectCallBack()
+{
+	if(m_UserServerCallBack_ != NULL)
+	{
+		std::string sendData = "";
+		m_UserServerCallBack_->AfterConnect(sendData);
+	}
+	else
+	{
+		std::cout << "error TcpConnect : handleConnnectCallBack" << std::endl;
+	}
+}
+
+void TcpConnect::handleSendMessageCallBack(const int& thesocket,
+						const std::string& recvData)
+{
+	std::cout << m_ipAddress_ << ":" << m_port_ 
+				<< "read string : " << recvData << std::endl;
+	std::string SendString = "HTTP/1.1 200 OK\r\nServer: 请叫我捡龙眼\r\n"
+							"Connection:close\r\n\r\n"
+							"<html>"
+								"<head><title>wc is rubbish</title></head>"
+								"<body><font size=+4>justtest</font></body>"
+							"</html>";
+	if(m_UserServerCallBack_ != NULL)
+	{
+		// 回调发送事件
+		m_UserServerCallBack_->SendMessage(recvData, SendString);
+		write(thesocket, SendString.c_str(), SendString.length() + 1);
+	}
+	else
+	{
+		std::cout << "error TcpConnect : handleSendMessageCallBack" << std::endl;
+	}
+	std::cout << m_ipAddress_ << ":" << m_port_ << " close。" << std::endl;
+}

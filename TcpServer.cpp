@@ -3,13 +3,15 @@ TcpServer::TcpServer(const std::string& ipAddress,
 				const int& port, const bool& block)
 	: m_Accepter_(NULL)
 	, m_loop_(NULL)
-	//, m_CallBack_(NULL)
+	, m_UserServerCallBack_(NULL)
 {
-	m_Accepter_ = new Accepter(ipAddress, port, block);
-	m_loop_ = new EventLoop();
-	//m_CallBack_ = (EpollEventCallBack)(&TcpServer::DeleteConnect);
+	Init(ipAddress, port, block);
 }
-
+// TcpServer::TcpServer()
+// 	: m_Accepter_(NULL)
+// 	, m_loop_(NULL)
+//	, m_UserServerCallBack_(NULL)
+// {}
 TcpServer::~TcpServer()
 {
 	if(m_Accepter_ != NULL)
@@ -26,10 +28,30 @@ TcpServer::~TcpServer()
 	{
 		close(theBegin->first);
 		delete theBegin->second;
+		theBegin->second = NULL;
 		theBegin++;
 	}
 	m_MapTcpConnect_.clear();
 }
+void TcpServer::Init(const std::string& ipAddress, 
+				const int& port, const bool& block)
+{
+	if(m_Accepter_ != NULL)
+		delete m_Accepter_;
+	m_Accepter_ = NULL;
+	m_Accepter_ = new Accepter(ipAddress, port, block);
+	
+	if(m_loop_ != NULL)
+		delete m_loop_;
+	m_loop_ = NULL;
+	m_loop_ = new EventLoop();
+}
+
+// void TcpServer::InitServer(const std::string& ipAddress, 
+// 				const int& port, const bool& block)
+// {
+// 	Init(ipAddress, port, block);
+// }
 
 bool TcpServer::newConnectCallBack(const int& thesocket,
 								const std::string& ipaddress,
@@ -37,13 +59,16 @@ bool TcpServer::newConnectCallBack(const int& thesocket,
 {
 	// 每当TcpConnect 关闭连接的时候，这个没有删除
 	TcpConnect* pTcpConnect = new TcpConnect(thesocket, ipaddress, port);
+	pTcpConnect->set_ServerCallBack(m_UserServerCallBack_);
 	if(pTcpConnect->Run(thesocket))
 	{
+		pTcpConnect->handleConnnectCallBack();
 		m_MapTcpConnect_[thesocket] = pTcpConnect;
 	}
 	else
 	{
 		delete pTcpConnect;
+		pTcpConnect = NULL;
 		std::cout << "error TcpServer : newConnectCallBack" << std::endl;
 		return false;
 	}
@@ -53,9 +78,11 @@ bool TcpServer::newConnectCallBack(const int& thesocket,
 void TcpServer::Start()
 {
 	m_Accepter_->set_CallBackFunction(this);
-	m_Accepter_->Run(m_loop_->get_EpollFD());
-	m_loop_->set_CallBack(this);
-	m_loop_->Loop();
+	if(m_Accepter_->Run(m_loop_->get_EpollFD()))
+	{
+		m_loop_->set_CallBack(this);
+		m_loop_->Loop();
+	}
 }
 
 bool TcpServer::DeleteConnectCallBack(const int& thesocket)
@@ -71,8 +98,14 @@ bool TcpServer::DeleteConnectCallBack(const int& thesocket)
 	{
 		close(theFind->first);;
 		delete theFind->second;
+		theFind->second = NULL;
 		std::cout << "delete socket " << theFind->first << std::endl;
 		m_MapTcpConnect_.erase(theFind);
 	}
 	return false;
+}
+
+void TcpServer::set_ServerCallBack(IServerUserCallBack* theCallBack)
+{
+	m_UserServerCallBack_ = theCallBack;
 }

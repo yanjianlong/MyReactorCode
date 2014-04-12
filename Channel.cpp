@@ -3,6 +3,7 @@
 Channel::Channel(const int& thesocket)
 	: m_CallBackFun_(NULL)
 	, m_socket_(thesocket)
+	, m_recvEvent_(0)
 {}
 Channel::~Channel()
 {}
