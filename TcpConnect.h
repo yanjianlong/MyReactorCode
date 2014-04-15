@@ -22,6 +22,7 @@ private:
 	// 接收缓冲区
 	std::string m_sendBuffer_;
 	const int m_bufferSzie_;
+	Channel* m_pChannel_;
 public:
 	// 
 	TcpConnect(const int& thesocket,

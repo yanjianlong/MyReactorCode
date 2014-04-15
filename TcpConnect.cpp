@@ -9,6 +9,7 @@ TcpConnect::TcpConnect(const int& thesocket,
 	, m_recvBuffer_("")
 	, m_sendBuffer_("")
 	, m_bufferSzie_(1024)
+	, m_pChannel_(NULL)
 {}
 
 TcpConnect::~TcpConnect()
@@ -23,7 +24,7 @@ bool TcpConnect::RecvDataCallBack(const int& thesocket)
 	if(readLength > 0)
 	{
 		handleSendMessageCallBack(thesocket, buffer);
-		return false;		// 关闭套接字
+		return true;		// 关闭套接字
 	}
 	else
 	{
@@ -34,9 +35,9 @@ bool TcpConnect::RecvDataCallBack(const int& thesocket)
 
 bool TcpConnect::Run(const int& thesocket)
 {
-	Channel* pCurChannel = new Channel(thesocket);
-	pCurChannel->setCallBackFunction(this);
-	return Epoll::GetInstance()->AddEpollEvent(pCurChannel, EPOLLIN | EPOLLET);
+	m_pChannel_ = new Channel(thesocket);
+	m_pChannel_->setCallBackFunction(this);
+	return Epoll::GetInstance()->AddEpollEvent(m_pChannel_, EPOLLIN | EPOLLET);
 }
 int TcpConnect::get_Socket()
 {
@@ -63,7 +64,7 @@ void TcpConnect::handleConnnectCallBack()
 
 bool TcpConnect::SendDataCallBack(const int& thesocket)
 {
-	return true;
+	return sendBuffer(m_socket_);
 }
 
 void TcpConnect::handleSendMessageCallBack(const int& thesocket,
@@ -71,7 +72,7 @@ void TcpConnect::handleSendMessageCallBack(const int& thesocket,
 {
 	std::cout << m_ipAddress_ << ":" << m_port_ 
 				<< "read string : " << recvData << std::endl;
-	m_sendBuffer_= "HTTP/1.1 200 OK\r\nServer: 请叫我捡龙眼\r\n"
+	m_sendBuffer_ = m_sendBuffer_ + "HTTP/1.1 200 OK\r\nServer: 请叫我捡龙眼\r\n"
 				"Connection:close\r\n\r\n"
 				"<html>"
 					"<head><title>wc is rubbish</title></head>"
@@ -81,7 +82,8 @@ void TcpConnect::handleSendMessageCallBack(const int& thesocket,
 	{
 		// 回调发送事件 
 		m_UserServerCallBack_->SendMessage(recvData, m_sendBuffer_);		// 构建返回消息
-		sendBuffer(thesocket);
+		//sendBuffer(thesocket);
+		Epoll::GetInstance()->ModifyEpollEvent(m_pChannel_, EPOLLOUT | EPOLLIN);
 	}
 	else
 	{
@@ -93,16 +95,21 @@ void TcpConnect::handleSendMessageCallBack(const int& thesocket,
 bool TcpConnect::sendBuffer(const int& thesocket)
 {
 	const int max_send_buffer = 20;
-	while(m_sendBuffer_.length() > 0)
+	//while(m_sendBuffer_.length() > 0)
 	{
 		if(m_sendBuffer_.length() > max_send_buffer)
 		{
 			std::string theSend = m_sendBuffer_.substr(0, max_send_buffer);
 			int sendlength = write(thesocket, theSend.c_str(), theSend.length());
 			m_sendBuffer_ = m_sendBuffer_.substr(sendlength, m_sendBuffer_.length());
+			return true;
 		}
 		else
+		{
 			write(thesocket, m_sendBuffer_.c_str(), m_sendBuffer_.length());
+			m_sendBuffer_ = "";
+			Epoll::GetInstance()->ModifyEpollEvent(m_pChannel_, EPOLLIN | EPOLLET);
+		}
 	}
-	return true;
+	return false;
 }

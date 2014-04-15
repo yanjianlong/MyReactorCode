@@ -33,8 +33,13 @@ bool Channel::handleEvent(const int& epollfd)
 		}
 		break;
 	case EPOLLOUT:		// 可写
-		std::cout << "EPOLLOUT" << std::endl;
-		{}
+		// std::cout << "EPOLLOUT" << std::endl;
+		{
+			if(m_CallBackFun_->SendDataCallBack(m_socket_))
+				return true;
+			else
+				return false;
+		}
 		break;
 	case EPOLLPRI:		// 紧急数据
 		std::cout << "EPOLLPRI" << std::endl;
