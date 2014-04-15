@@ -39,7 +39,7 @@ bool Accepter::Run(const int& epollfd)
 	}
 }
 
-bool Accepter::ChannelCallBack(const int& thesocket)
+bool Accepter::RecvDataCallBack(const int& thesocket)
 {
 	// 连接
 	if(thesocket == m_serverSocket_.get_Socket())
@@ -77,4 +77,9 @@ int Accepter::get_Socket()
 void Accepter::set_CallBackFunction(IAccepterCallBack* theCallBack)
 {
 	m_TcpServerCallBack_ = theCallBack;
+}
+
+bool Accepter::SendDataCallBack(const int& thesocket)
+{
+	return true;
 }

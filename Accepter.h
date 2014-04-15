@@ -14,7 +14,8 @@ public:
 	// 运行 epoll池
 	bool Run(const int& epollfd);
 	// 本身回调
-	bool ChannelCallBack(const int& thesocket);
+	bool RecvDataCallBack(const int& thesocket);
+	bool SendDataCallBack(const int& thesocket);
 	// 获取服务套接字
 	int get_Socket();
 	// set the callback function

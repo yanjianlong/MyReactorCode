@@ -27,8 +27,10 @@ void UserServer::DoAnalyseMessage(const std::string& recvData,
 void UserServer::SendMessage(const std::string& recvData, 
 					std::string& sendData)
 {
+	// 构造数据
 	DoAnalyseMessage(recvData, sendData);
 	std::cout << "UserServer handle sendMessage" << std::endl;
+	// 发送数据	
 }
 
 void UserServer::AfterConnect(std::string& sendData)

@@ -29,6 +29,11 @@ public:
 
 	// 添加监听事件 fd
 	bool AddEpollEvent(Channel* pChannel, const int& waiteEvent);
+	// 改变监听事件 fd
+	bool ModifyEpollEvent(Channel* pChannel, const int& waiteEvent);
+	// 删除监听事件
+	bool DeleteEpollEvent(Channel* pChannel, const int& waiteEvent);
+	// 等待事件
 	int WaiteEpollEvent(std::vector<Channel*>& returnChannelVector);
 	int get_EpollFD();
 };

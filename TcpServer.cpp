@@ -63,6 +63,8 @@ bool TcpServer::newConnectCallBack(const int& thesocket,
 	if(pTcpConnect->Run(thesocket))
 	{
 		pTcpConnect->handleConnnectCallBack();
+		if(-1 == fcntl(thesocket, F_SETFL, O_NONBLOCK))
+			std::cout << "error TcpServer : newConnectCallBack" << std::endl;
 		m_MapTcpConnect_[thesocket] = pTcpConnect;
 	}
 	else

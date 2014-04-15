@@ -6,16 +6,20 @@ TcpConnect::TcpConnect(const int& thesocket,
 	, m_ipAddress_(ipaddress)
 	, m_port_(port)
 	, m_UserServerCallBack_(NULL)
+	, m_recvBuffer_("")
+	, m_sendBuffer_("")
+	, m_bufferSzie_(1024)
 {}
 
 TcpConnect::~TcpConnect()
 {
 }
 
-bool TcpConnect::ChannelCallBack(const int& thesocket)
+bool TcpConnect::RecvDataCallBack(const int& thesocket)
 {
-	char buffer[1024] = {0};
-	int readLength = read(thesocket, buffer, 1024);
+	char buffer[m_bufferSzie_ + 1];
+	int readLength = read(thesocket, buffer, m_bufferSzie_);
+	buffer[readLength] = '\0';
 	if(readLength > 0)
 	{
 		handleSendMessageCallBack(thesocket, buffer);
@@ -57,26 +61,48 @@ void TcpConnect::handleConnnectCallBack()
 	}
 }
 
+bool TcpConnect::SendDataCallBack(const int& thesocket)
+{
+	return true;
+}
+
 void TcpConnect::handleSendMessageCallBack(const int& thesocket,
 						const std::string& recvData)
 {
 	std::cout << m_ipAddress_ << ":" << m_port_ 
 				<< "read string : " << recvData << std::endl;
-	std::string SendString = "HTTP/1.1 200 OK\r\nServer: 请叫我捡龙眼\r\n"
-							"Connection:close\r\n\r\n"
-							"<html>"
-								"<head><title>wc is rubbish</title></head>"
-								"<body><font size=+4>justtest</font></body>"
-							"</html>";
+	m_sendBuffer_= "HTTP/1.1 200 OK\r\nServer: 请叫我捡龙眼\r\n"
+				"Connection:close\r\n\r\n"
+				"<html>"
+					"<head><title>wc is rubbish</title></head>"
+					"<body><font size=+4>justtest</font></body>"
+				"</html>";
 	if(m_UserServerCallBack_ != NULL)
 	{
-		// 回调发送事件
-		m_UserServerCallBack_->SendMessage(recvData, SendString);
-		write(thesocket, SendString.c_str(), SendString.length() + 1);
+		// 回调发送事件 
+		m_UserServerCallBack_->SendMessage(recvData, m_sendBuffer_);		// 构建返回消息
+		sendBuffer(thesocket);
 	}
 	else
 	{
 		std::cout << "error TcpConnect : handleSendMessageCallBack" << std::endl;
 	}
-	std::cout << m_ipAddress_ << ":" << m_port_ << " close。" << std::endl;
+	//std::cout << m_ipAddress_ << ":" << m_port_ << " close。" << std::endl;
+}
+
+bool TcpConnect::sendBuffer(const int& thesocket)
+{
+	const int max_send_buffer = 20;
+	while(m_sendBuffer_.length() > 0)
+	{
+		if(m_sendBuffer_.length() > max_send_buffer)
+		{
+			std::string theSend = m_sendBuffer_.substr(0, max_send_buffer);
+			int sendlength = write(thesocket, theSend.c_str(), theSend.length());
+			m_sendBuffer_ = m_sendBuffer_.substr(sendlength, m_sendBuffer_.length());
+		}
+		else
+			write(thesocket, m_sendBuffer_.c_str(), m_sendBuffer_.length());
+	}
+	return true;
 }

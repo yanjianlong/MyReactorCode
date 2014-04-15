@@ -26,20 +26,15 @@ bool Channel::handleEvent(const int& epollfd)
 		// std::cout << "EPOLLIN" << std::endl;
 		{
 			// 套接字字是否还有效
-			if(m_CallBackFun_->ChannelCallBack(m_socket_))
-			{
+			if(m_CallBackFun_->RecvDataCallBack(m_socket_))
 				return true;
-			}
 			else
-			{
-				// 套接字无效
-				epoll_ctl(epollfd, EPOLL_CTL_DEL, m_socket_, NULL);
 				return false;
-			}
 		}
 		break;
 	case EPOLLOUT:		// 可写
 		std::cout << "EPOLLOUT" << std::endl;
+		{}
 		break;
 	case EPOLLPRI:		// 紧急数据
 		std::cout << "EPOLLPRI" << std::endl;

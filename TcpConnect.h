@@ -16,6 +16,12 @@ private:
 	// 回调发送事件
 	void handleSendMessageCallBack(const int& thesocket,
 						const std::string& recvData);
+
+	// 发送缓冲区
+	std::string m_recvBuffer_;
+	// 接收缓冲区
+	std::string m_sendBuffer_;
+	const int m_bufferSzie_;
 public:
 	// 
 	TcpConnect(const int& thesocket,
@@ -23,7 +29,9 @@ public:
 				const int& port);
 	~TcpConnect();
 	// 回调的信息处理
-	bool ChannelCallBack(const int& thesocket);
+	bool RecvDataCallBack(const int& thesocket);
+	bool SendDataCallBack(const int& thesocket);
+	
 	bool Run(const int& thesocket);
 	int get_Socket();
 
@@ -31,6 +39,9 @@ public:
 	void set_ServerCallBack(IServerUserCallBack* theCallBack);
 	// 回调连接事件
 	void handleConnnectCallBack();
+
+	// 发送数据
+	bool sendBuffer(const int& thesocket);
 };
 
 #endif

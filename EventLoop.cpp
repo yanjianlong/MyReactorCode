@@ -23,6 +23,7 @@ void EventLoop::Loop()
 			{}
 			else
 			{
+				Epoll::GetInstance()->DeleteEpollEvent(*theBegin, 0);
 				int socketfd = (*theBegin)->get_Socket();
 				if(m_deleteConnect_)
 					m_deleteConnect_->DeleteConnectCallBack(socketfd);

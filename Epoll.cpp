@@ -60,3 +60,18 @@ int Epoll::get_EpollFD()
 {
 	return m_epollfd_;
 }
+
+bool Epoll::ModifyEpollEvent(Channel* pChannel, const int& waiteEvent)
+{
+	epoll_event ev;
+    ev.data.ptr = pChannel;
+    ev.events = waiteEvent;
+    epoll_ctl(m_epollfd_, EPOLL_CTL_MOD, pChannel->get_Socket(), &ev);
+	return true;
+}
+
+bool Epoll::DeleteEpollEvent(Channel* pChannel, const int& waiteEvent)
+{
+	epoll_ctl(m_epollfd_, EPOLL_CTL_DEL, pChannel->get_Socket(), NULL);
+	return true;
+}
