@@ -10,6 +10,7 @@ TcpConnect::TcpConnect(const int& thesocket,
 	, m_sendBuffer_("")
 	, m_bufferSzie_(1024)
 	, m_pChannel_(NULL)
+	, m_TimeID_(-1)
 {}
 
 TcpConnect::~TcpConnect()
@@ -36,8 +37,18 @@ bool TcpConnect::RecvDataCallBack(const int& thesocket)
 bool TcpConnect::Run(const int& thesocket)
 {
 	m_pChannel_ = new Channel(thesocket);
+	if(m_pChannel_ == NULL)
+		return false;
 	m_pChannel_->setCallBackFunction(this);
-	return Epoll::GetInstance()->AddEpollEvent(m_pChannel_, EPOLLIN | EPOLLET);
+	if(Epoll::GetInstance()->AddEpollEvent(m_pChannel_, EPOLLIN | EPOLLET))
+		return true;
+	else
+	{
+		if(NULL != m_pChannel_)
+			delete m_pChannel_;
+		m_pChannel_ = NULL;
+		return false;
+	}
 }
 int TcpConnect::get_Socket()
 {
@@ -54,7 +65,7 @@ void TcpConnect::handleConnnectCallBack()
 	if(m_UserServerCallBack_ != NULL)
 	{
 		std::string sendData = "";
-		m_UserServerCallBack_->AfterConnect(sendData);
+		m_UserServerCallBack_->AfterConnect(sendData, m_TimeID_);
 	}
 	else
 	{
@@ -109,6 +120,11 @@ bool TcpConnect::sendBuffer(const int& thesocket)
 			write(thesocket, m_sendBuffer_.c_str(), m_sendBuffer_.length());
 			m_sendBuffer_ = "";
 			Epoll::GetInstance()->ModifyEpollEvent(m_pChannel_, EPOLLIN | EPOLLET);
+			if(m_UserServerCallBack_)
+			{
+				std::string yourstring = "";
+				m_UserServerCallBack_->CloseConnect(yourstring, m_TimeID_);
+			}
 		}
 	}
 	return false;

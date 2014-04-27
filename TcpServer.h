@@ -11,16 +11,15 @@ private:
 	Accepter* m_Accepter_;
 	// 客户端套接字
 	std::map<int, TcpConnect*> m_MapTcpConnect_;
-	// Epoll_Event
-	EventLoop* m_loop_;			//事件循环
 	// 用户服务器回调
 	IServerUserCallBack* m_UserServerCallBack_;
 
 	// 初始化server
 	void Init(const std::string& ipAddress, 
 				const int& port, const bool& block);
-
 public:
+	// Epoll_Event
+	EventLoop* m_loop_;			//事件循环
 	//TcpServer();
 	TcpServer(const std::string& ipAddress, const int& port, const bool& block);
 	~TcpServer();

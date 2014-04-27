@@ -23,6 +23,8 @@ private:
 	std::string m_sendBuffer_;
 	const int m_bufferSzie_;
 	Channel* m_pChannel_;
+	// 时间定时器
+	int64_t m_TimeID_;
 public:
 	// 
 	TcpConnect(const int& thesocket,

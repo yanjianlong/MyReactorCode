@@ -8,7 +8,10 @@ public:
 	virtual void SendMessage(const std::string& recvData, 
 							std::string& sendData) = 0;
 	// 发送数据
-	virtual void AfterConnect(std::string& sendData) = 0;
+	virtual void AfterConnect(std::string& sendData, int64_t& theTimeFd) = 0;
+
+	// 发送完成
+	virtual void CloseConnect(std::string& sendData, const int64_t& theTimeFd) = 0;
 };
 
 #endif
