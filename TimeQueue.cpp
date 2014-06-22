@@ -138,6 +138,6 @@ void TimeQueue::InitTimerFD(const int64_t& theTimeNext)
 void TimeQueue::CancelTimer(const int64_t& timefd)
 {
 	// 找到定时器 删除任务
-	m_TimerRuner_.remove(timefd);
+	m_TimerRuner_.erase(timefd);
 	std::cout << "TimeQueue m_TimerRuner_ size : " << m_TimerRuner_.size() << std::endl;
 }
