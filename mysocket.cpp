@@ -2,6 +2,7 @@
 JianLongYanSocket::JianLongYanSocket()
 	: m_Socket_(-1)
 {
+	std::cout << "socket create" << std::endl;
 
 }
 JianLongYanSocket::~JianLongYanSocket()
@@ -11,6 +12,8 @@ JianLongYanSocket::~JianLongYanSocket()
 		close(m_Socket_);
 		m_Socket_ = -1;
 	}
+	std::cout << "socket delete" << std::endl;
+
 }
 int JianLongYanSocket::get_Socket()
 {

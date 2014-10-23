@@ -1,7 +1,19 @@
-#include "TcpServer.h"
+#include "UserServer.h"
+
+#include <signal.h>
+
+UserServer* myServer = NULL;
+static void sig_int(int num)
+{
+	std::cout << num << std::endl;
+	if (NULL != myServer)
+		delete myServer; 
+}
 int main()
 {
-	TcpServer myServer("127.0.0.1", 8080, true);
-	myServer.Start();
+	myServer = new UserServer("192.168.189.129", 8080, true, 10240);
+	signal(SIGINT, sig_int);
+	myServer->StartServer();
 	return 0;
 }
+

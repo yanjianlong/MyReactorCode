@@ -5,6 +5,8 @@ class IChannelCallBack
 {
 public:
 	// 该套接字是否还有效
-	virtual bool CallBackFunction(const int& thesocket) = 0;
+	virtual bool ChannelCallBack(const int& thesocket) = 0;
+	// 返回套接字
+	virtual int get_Socket() = 0;
 };
 #endif

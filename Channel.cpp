@@ -3,10 +3,16 @@
 Channel::Channel(const int& thesocket)
 	: m_CallBackFun_(NULL)
 	, m_socket_(thesocket)
-	, m_waiteEvent_(0)
-{}
+	, m_recvEvent_(0)
+{
+	std::cout << "Channel create" << std::endl;
+
+}
 Channel::~Channel()
-{}
+{
+	std::cout << "Channel delete" << std::endl;
+
+}
 
 void Channel::setRecvEvent(const int& theEvent)
 {
@@ -18,33 +24,15 @@ void Channel::setCallBackFunction(IChannelCallBack* callBack)
 	m_CallBackFun_ = callBack;
 }
 
-bool Channel::enableEvent(const int& epollfd, const int& theEvent)
-{
-	return update(epollfd, theEvent);
-}
-
-bool Channel::update(const int& epollfd, const int& theEvent)
-{
-	m_waiteEvent_ = m_waiteEvent_ | theEvent;
-	if(m_socket_ == -1)
-		return false;
-	epoll_event ev;
-	ev.data.ptr = this;
-	ev.events = m_waiteEvent_;
-	if(0 == epoll_ctl(epollfd, EPOLL_CTL_ADD, m_socket_, &ev))
-		return true;
-	return false;
-}
-
 bool Channel::handleEvent(const int& epollfd)
 {
 	switch(m_recvEvent_)
 	{
 	case EPOLLIN:		// 可读
-		std::cout << "EPOLLIN" << std::endl;
+		// std::cout << "EPOLLIN" << std::endl;
 		{
-			// 陶杰字是否还有效
-			if(m_CallBackFun_->CallBackFunction(m_socket_))
+			// 套接字字是否还有效
+			if(m_CallBackFun_->ChannelCallBack(m_socket_))
 			{
 				return true;
 			}
@@ -52,9 +40,6 @@ bool Channel::handleEvent(const int& epollfd)
 			{
 				// 套接字无效
 				epoll_ctl(epollfd, EPOLL_CTL_DEL, m_socket_, NULL);
-				close(m_socket_);
-				std::cout << "(" << m_socket_ << "):连接关闭，正在删除." << std::endl;
-				m_socket_ = -1;
 				return false;
 			}
 		}
@@ -85,4 +70,9 @@ bool Channel::handleEvent(const int& epollfd)
 		break;
 	}
 	return true;
+}
+
+int Channel::get_Socket()
+{
+	return m_socket_;
 }

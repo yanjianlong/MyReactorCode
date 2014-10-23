@@ -2,7 +2,7 @@
 #define __STDAFX_H
 
 #include <iostream>
-#include <list>
+#include <map>
 #include <string>
 #include <sys/socket.h>
 #include <sys/epoll.h>
@@ -13,7 +13,8 @@
 #include <string.h>
 #include <sys/time.h>
 #include <fcntl.h>
-
+#include <vector>
+#include <pthread.h>
 enum Event_Type
 {
 	ACCEPT_EVENT = 1,
@@ -23,5 +24,5 @@ enum Event_Type
 	SIGNAL_EVENT = 16,
 	CLOSE_EVENT = 32
 };
-const int MAX_EPOLL_EVENT = 2000;
+const int MAX_EPOLL_EVENT = 10240;
 #endif

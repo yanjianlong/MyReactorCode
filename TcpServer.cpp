@@ -1,107 +1,126 @@
 #include "TcpServer.h"
 TcpServer::TcpServer(const std::string& ipAddress, 
-				const int& port, const bool& block)
-	: m_ipAddress_(ipAddress)
-	, m_port_(port)
-	, m_bBlock_(true)
-	, m_EpollFd_(-1)
+				const int& port, const bool& block, const int& max_event)
+	: m_Accepter_(NULL)
+	, m_loop_(NULL)
+	, m_epoll_(NULL)
+	, m_UserServerCallBack_(NULL)
 {
+	std::cout << "TcpServer create" << std::endl;
+
+	Init(ipAddress, port, block, max_event);
+}
+// TcpServer::TcpServer()
+// 	: m_Accepter_(NULL)
+// 	, m_loop_(NULL)
+//	, m_UserServerCallBack_(NULL)
+// {}
+TcpServer::~TcpServer()
+{
+	if(m_Accepter_ != NULL)
+		delete m_Accepter_;
+	m_Accepter_ = NULL;
+
+	if(m_epoll_ != NULL)
+		delete m_epoll_;
+	m_epoll_ = NULL;
+
+	if(m_loop_ != NULL)
+		delete m_loop_;
+	m_loop_ = NULL;
+
+	
+
+	std::map<int, TcpConnect*>::iterator theBegin = m_MapTcpConnect_.begin();
+	std::map<int, TcpConnect*>::iterator theEnd = m_MapTcpConnect_.end();
+	while(theBegin != theEnd)
+	{
+		close(theBegin->first);
+		delete theBegin->second;
+		theBegin->second = NULL;
+		theBegin++;
+	}
+	m_MapTcpConnect_.clear();
+	std::cout << "TcpServer delete" << std::endl;
+
+}
+void TcpServer::Init(const std::string& ipAddress, 
+				const int& port, const bool& block, const int& max_event)
+{
+	if(m_Accepter_ != NULL)
+		delete m_Accepter_;
+	m_Accepter_ = NULL;
+	m_Accepter_ = new Accepter(ipAddress, port, block);
+	
+	if(m_loop_ != NULL)
+		delete m_loop_;
+	m_loop_ = NULL;
+	m_loop_ = new EventLoop();
+
+	if(m_epoll_ != NULL)
+		delete m_epoll_;
+	m_epoll_ = new Epoll(max_event);
 }
 
-TcpServer::~TcpServer()
-{}
+// void TcpServer::InitServer(const std::string& ipAddress, 
+// 				const int& port, const bool& block)
+// {
+// 	Init(ipAddress, port, block);
+// }
 
-/*
-	存在问题
-	Channel* 对象内存泄漏
- */
-bool TcpServer::CallBackFunction(const int& thesocket)
+bool TcpServer::newConnectCallBack(const int& thesocket,
+								const std::string& ipaddress,
+								const int& port)
 {
-	// 连接
-	if(thesocket == m_MySocket_.get_Socket())
+	// 每当TcpConnect 关闭连接的时候，这个没有删除
+	TcpConnect* pTcpConnect = new TcpConnect(thesocket, ipaddress, port);
+	pTcpConnect->set_ServerCallBack(m_UserServerCallBack_);
+	if(pTcpConnect->Run(thesocket, m_epoll_))
 	{
-		sockaddr_in clientAddr;
-		socklen_t theLengthAddr = sizeof(clientAddr);
-		memset(&clientAddr, 0, sizeof(clientAddr));
-		int clientSocket = accept(m_MySocket_.get_Socket(), (sockaddr*)&clientAddr, &theLengthAddr);
-		if(clientSocket > 0)
-		{
-			std::cout << "new connection form " << inet_ntoa(clientAddr.sin_addr)
-						<< ":" << ntohs(clientAddr.sin_port) 
-						<< "(" << clientSocket << ")" << std::endl;
-			// 注册客户端套接字事件
-			Channel* pClientChanel = new Channel(clientSocket);
-			pClientChanel->setCallBackFunction(this);
-			pClientChanel->enableEvent(m_EpollFd_, EPOLLIN | EPOLLET);
-		}
+		pTcpConnect->handleConnnectCallBack();
+		m_MapTcpConnect_[thesocket] = pTcpConnect;
 	}
-	// recv / send
 	else
 	{
-		const int MAX_BUFFER_LENGTH = 1024;
-		char theBuffer[MAX_BUFFER_LENGTH] = {0};
-		int readNumber = read(thesocket, theBuffer, MAX_BUFFER_LENGTH - 1);
-		if(readNumber > 0)
-		{
-			std::cout << "(" << thesocket << ") read " << readNumber << "chars : " 
-						<< theBuffer << std::endl;
-			int writeNumber = write(thesocket, theBuffer, readNumber + 1);
-			std::cout << "(" << thesocket << ") write:" << theBuffer << std::endl;
-		}
-		else
-		{
-			close(thesocket);
-			std::cout << "(" << thesocket << ") close; " << std::endl;
-			return false;
-		}
-		
+		delete pTcpConnect;
+		pTcpConnect = NULL;
+		std::cout << "error TcpServer : newConnectCallBack" << std::endl;
+		return false;
 	}
 	return true;
 }
 
 void TcpServer::Start()
 {
-	if(!m_MySocket_.createSocket(m_bBlock_))
-		return ;
-	if(!m_MySocket_.dobind(m_ipAddress_, m_port_))
-		return ;
-	if(!m_MySocket_.dolisten(MAX_EPOLL_EVENT - 1))
-		return ;
-	m_EpollFd_ = epoll_create(MAX_EPOLL_EVENT);
-	if(m_EpollFd_ <= 0)
-		return ;
-	// 事件
-	epoll_event myEvents[MAX_EPOLL_EVENT];
-	Channel* theServerChanel = new Channel(m_MySocket_.get_Socket());
-	theServerChanel->setCallBackFunction(this);
-	// 添加事件
-	if (theServerChanel->enableEvent(m_EpollFd_, EPOLLIN | EPOLLET)) 
+	m_Accepter_->set_CallBackFunction(this);
+	if(m_Accepter_->Run(m_epoll_->get_EpollFD(), m_epoll_))
 	{
-		while(true)
-		{
-			//  等待事件发生
-			int waitefdnumber = epoll_wait(m_EpollFd_, myEvents, 
-											MAX_EPOLL_EVENT, -1);
-			if(waitefdnumber != -1)
-			{
-				// 遍历
-				for(int i = 0; i < waitefdnumber; i++)
-				{
-					// 取出隐藏的
-					Channel* pCurrentChanel = (Channel*)(myEvents[i].data.ptr);
-					// 回调函数
-					pCurrentChanel->setRecvEvent(myEvents[i].events); 
-					bool theConnectState = pCurrentChanel->handleEvent(m_EpollFd_);
-					if(!theConnectState)
-						delete pCurrentChanel;
-				}
-			}
-			else
-			{
-				std::cout << "epoll_waite error" << std::endl;
-			}
-		}
+		m_loop_->set_CallBack(this);
+		m_loop_->Loop(m_epoll_);
 	}
-	else
-		delete theServerChanel;
+}
+
+bool TcpServer::DeleteConnectCallBack(const int& thesocket)
+{
+	if(thesocket == m_Accepter_->get_Socket())
+	{
+		std::cout << "server socket close" << std::endl;
+		m_loop_->CloseEventLoop();
+		return true;
+	}
+	std::map<int, TcpConnect*>::iterator theFind = m_MapTcpConnect_.find(thesocket);
+	if(theFind != m_MapTcpConnect_.end())
+	{
+		close(theFind->first);;
+		delete theFind->second;
+		theFind->second = NULL;
+		std::cout << "delete socket " << theFind->first << std::endl;
+		m_MapTcpConnect_.erase(theFind);
+	}
+	return false;
+}
+
+void TcpServer::set_ServerCallBack(IServerUserCallBack* theCallBack)
+{
+	m_UserServerCallBack_ = theCallBack;
 }
