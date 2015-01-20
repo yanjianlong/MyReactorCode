@@ -3,8 +3,7 @@ UserServer::UserServer(const std::string& ipAddress,
 				const int& port, const bool& block, const int& max_event)
 	: m_UserServer_(NULL)
 {
-	std::cout << "Userserver create" << std::endl;
-
+	std::cout << "UserServer UserServer" << std::endl;
 	m_UserServer_ = new TcpServer(ipAddress, port, block, max_event);
 }
 
@@ -13,7 +12,7 @@ UserServer::~UserServer()
 	if(m_UserServer_ != NULL)
 		delete m_UserServer_;
 	m_UserServer_ = NULL;
-	std::cout << "Userserver delete" << std::endl;
+	std::cout << "UserServer ~UserServer" << std::endl;
 
 }
 

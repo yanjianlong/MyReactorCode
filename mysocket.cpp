@@ -2,7 +2,8 @@
 JianLongYanSocket::JianLongYanSocket()
 	: m_Socket_(-1)
 {
-	std::cout << "socket create" << std::endl;
+	std::cout << "JianLongYanSocket JianLongYanSocket" 
+			<< std::endl;
 
 }
 JianLongYanSocket::~JianLongYanSocket()
@@ -12,13 +13,15 @@ JianLongYanSocket::~JianLongYanSocket()
 		close(m_Socket_);
 		m_Socket_ = -1;
 	}
-	std::cout << "socket delete" << std::endl;
-
+	std::cout << "JianLongYanSocket ~JianLongYanSocket" 
+			<< std::endl;
 }
+
 int JianLongYanSocket::get_Socket()
 {
 	return m_Socket_;	
 }
+
 bool JianLongYanSocket::doconnect(const std::string& ipAddress, const int& port)
 {
 	if(m_Socket_ != -1)
@@ -78,6 +81,6 @@ bool JianLongYanSocket::dolisten(const int& listenNumber)
 }
 
 
-void JianLongYanSocket::DoAccept()
-{
-}
+// void JianLongYanSocket::DoAccept()
+// {
+// }

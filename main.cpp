@@ -11,7 +11,7 @@ static void sig_int(int num)
 }
 int main()
 {
-	myServer = new UserServer("192.168.189.129", 8080, true, 10240);
+	myServer = new UserServer("192.168.126.42", 8080, true, 10240);
 	signal(SIGINT, sig_int);
 	myServer->StartServer();
 	return 0;

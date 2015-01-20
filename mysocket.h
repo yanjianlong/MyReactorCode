@@ -17,7 +17,7 @@ public:
 	// 连接
 	bool doconnect(const std::string& ipAddress, const int& port);
 	// 接收
-	void DoAccept();
+	// void DoAccept();
 	// 
 	int get_Socket();
 };
