@@ -25,4 +25,5 @@ enum Event_Type
 	CLOSE_EVENT = 32
 };
 const int MAX_EPOLL_EVENT = 10240;
+using namespace std;
 #endif

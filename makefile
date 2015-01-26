@@ -1,5 +1,5 @@
-# ${mkdir obj}
-# ${mkdir bin}
+${shell mkdir ./bin}
+${shell mkdir ./obj}
 src := ${shell ls *.cpp}
 objpath = ./obj/%.o
 srcpath = %.cpp
