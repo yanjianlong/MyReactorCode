@@ -1,4 +1,4 @@
-#ifndef __ACCEPTER_H__
+﻿#ifndef __ACCEPTER_H__
 #define __ACCEPTER_H__
 #include "mysocket.h"
 #include "IChannelCallBack.h"

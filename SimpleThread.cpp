@@ -6,26 +6,26 @@ CSimpleThread::CSimpleThread(const std::string& thread_name)
 	, m_thread_id_(0)
 	, m_thread_name_(thread_name)
 {
-	std::cout << "thread create" << std::endl;
+	//std::cout << "thread create" << std::endl;
 }
 
 CSimpleThread::~CSimpleThread()
 {
-	std::cout << "thread delete" << std::endl;
+	//std::cout << "thread delete" << std::endl;
 }
 
 void CSimpleThread::StartThread()
 {
+	std::cout << this->GetThreadName() << " thread start " << std::endl;
 	m_thread_id_ = pthread_create(&m_thread_handle_, NULL, &run_thread, this);
 }
 
 void* CSimpleThread::run_thread(void* param)
 {
 	CSimpleThread* my_thread = (CSimpleThread*)param;
-	std::cout << my_thread->GetThreadName() << " thread start " << std::endl;
 	// while(my_thread->m_bRun_)
 	my_thread->run_function();
-	std::cout << my_thread->GetThreadName() << " thread end " << std::endl;
+	
 }
 
 std::string CSimpleThread::GetThreadName() const
@@ -34,6 +34,9 @@ std::string CSimpleThread::GetThreadName() const
 }
 void CSimpleThread::StopThread()
 {
-	m_bRun_ = false
+	if (m_bRun_)
+		std::cout << this->GetThreadName() << " thread end result:" << this->m_thread_name_ 
+				<< pthread_join(this->m_thread_id_, NULL) << endl;
+	m_bRun_ = false;
 }
 }

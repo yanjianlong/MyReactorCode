@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <vector>
 #include <pthread.h>
+#include <unistd.h>
 enum Event_Type
 {
 	ACCEPT_EVENT = 1,

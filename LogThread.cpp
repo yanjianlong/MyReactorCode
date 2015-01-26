@@ -1,4 +1,4 @@
-#include "LogThread.h"
+﻿#include "LogThread.h"
 namespace util{
 CLogThread::CLogThread(const std::string& thread_name)
 	: CSimpleThread(thread_name)
@@ -12,9 +12,9 @@ CLogThread::~CLogThread()
 
 void CLogThread::run_function()
 {
-	while(this->m_bRun_)
+	while(this->BoolRun())
 	{
-		cout << "" << endl;
+		//cout << "test" << endl;
 	}
 }
 

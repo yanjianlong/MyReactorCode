@@ -10,7 +10,7 @@ private:
 public:
 	CLogThread(const std::string& thread_name);
 	~CLogThread();
-	void run_function();
+	void run_function();		// ÔËÐÐº¯Êý
 };
 
 
