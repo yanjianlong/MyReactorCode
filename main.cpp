@@ -12,14 +12,14 @@ public:
 	CMyServer()
 		: m_log_(NULL)
 	{
-		m_log_ = new util::CLogThread("log_thread");
+		m_log_ = util::CLogThread::GetInstance();
 	}
 	~CMyServer()
 	{
 		if (NULL !=  m_log_)
 		{
 			m_log_->StopThread();
-			delete m_log_;
+			// delete m_log_;
 		}
 		m_log_ = NULL;
 	}
@@ -54,7 +54,9 @@ int main()
 	cout << "test log threading" << endl;
 	if(NULL != myserver)
 	{
+		sleep(1);
 		myserver->Stop();
+		sleep(1);
 		delete myserver;
 	}
 	myserver = NULL;

@@ -17,7 +17,7 @@ public:
 	void StartThread();
 	void StopThread();
 	virtual void run_function() = 0;
-	std::string GetThreadName() const;
+	std::string GetThreadName();
 	bool BoolRun() const { return m_bRun_; }
 };
 

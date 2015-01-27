@@ -16,6 +16,9 @@
 #include <vector>
 #include <pthread.h>
 #include <unistd.h>
+#include <sys/time.h>
+#include <stdio.h>
+
 enum Event_Type
 {
 	ACCEPT_EVENT = 1,
