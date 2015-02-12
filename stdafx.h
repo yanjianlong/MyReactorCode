@@ -18,7 +18,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <stdio.h>
-
+#include <signal.h>
 enum Event_Type
 {
 	ACCEPT_EVENT = 1,

@@ -1,5 +1,6 @@
 obj/
 bin/
+lib/
 log/
 myreactor.*
 MyReactorCode.*

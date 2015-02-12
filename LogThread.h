@@ -10,11 +10,13 @@ class CLogThread:
 {
 private:
 	static CLogThread* m_instance_;
-	CLock m_buffer_lock_;
+	CLock m_print_lock_;
+
+
 	std::vector<string> m_store_buffer_;
 	std::vector<string> m_write_buffer_;
 	CLogThread();
-	void Log(const string& level, const string& contetn);
+	void Log(const string& level, const string& content);
 	// std::string m_file_name_;
 
 	void CheckFile();

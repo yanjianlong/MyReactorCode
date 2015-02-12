@@ -31,7 +31,7 @@ void CLogThread::run_function()
 {
 	while(this->BoolRun())
 	{
-		CheckFile();
+		// CheckFile();
 		sleep(0.5);
 	}
 }
@@ -55,8 +55,10 @@ void CLogThread::CheckFile()
 	memcpy(&pre_time, cur_time, sizeof(struct tm));
 }
 
-void CLogThread::Log(const string& level, const string& contetn)
+void CLogThread::Log(const string& level, const string& content)
 {
+	CMutex mutex(m_print_lock_);
+	cout << level << " " << content << endl;
 }
 
 }

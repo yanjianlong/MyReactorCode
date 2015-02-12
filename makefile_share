@@ -1,14 +1,21 @@
 ${shell test -d ./bin || mkdir ./bin}
-${shell test -d ./bin || mkdir ./obj}
+${shell test -d ./obj || mkdir ./obj}
+linker = g++ -g -o
+complier = g++ -c -g
 src := ${shell ls *.cpp}
 objpath = ./obj/%.o
 srcpath = %.cpp
 objs := ${patsubst ${srcpath}, ${objpath}, ${src}}
 exefile := ./bin/server
+head_dir = -Iinclude
+libs_dir = -Llibs
+libs = -lpthread -llog
+flags = -Wl,-rpath=./libs
+
 ${exefile} : ${objs}
-	g++ -o $@ $^ -lpthread 
+	${linker} ${exefile} ${libs_dir} ${objs} ${libs} ${flags}
 ${objpath} : ${srcpath}
-	g++ -c -g -o $@ $<
+	${complier} ${head_dir} -o $@ $<
 .PTHONY : clean
 clean:
 	rm -f ${exefile} ${objs}
