@@ -1,0 +1,16 @@
+${shell test -d ./bin || mkdir ./bin}
+${shell test -d ./bin || mkdir ./obj}
+${shell test -d ./lib || mkdir ./lib}
+CC		:= g++
+CFLAGS  := -c -g
+LDFLAGS := -shared -fPIC
+SOURCE  := LogThread.cpp SimpleThread.cpp
+HEADER := SimpleThread.h LogThread.h 
+TARGET_LIB := ./lib/libs/liblog.so
+
+${TARGET_LIB} : ${SOURCE}
+	${CC} $(LDFLAGS) -o $@ $^ -lpthread 
+ 
+.PHONY: clean
+clean:
+	rm ./lib/*.so ./obj/*.o -rf

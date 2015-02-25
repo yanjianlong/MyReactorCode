@@ -3,13 +3,19 @@ ${shell test -d ./bin || mkdir ./obj}
 ${shell test -d ./lib || mkdir ./lib}
 CC		:= g++
 CFLAGS  := -c -g
-LDFLAGS := -shared -fPIC
+AR		:= ar
+LIBFLAGS := rcsv
+OBJECT	:= ./obj/LogThread.o ./obj/SimpleThread.o
 SOURCE  := LogThread.cpp SimpleThread.cpp
-HEADER := SimpleThread.h LogThread.h 
-TARGET_LIB := ./lib/libs/liblog.so
+HEADER 	:= SimpleThread.h LogThread.h 
+TARGET_LIB := ./lib/libs/liblog.a
+DLLDEPEND := -lpthread 
 
-${TARGET_LIB} : ${SOURCE}
-	${CC} $(LDFLAGS) -o $@ $^ -lpthread 
+${TARGET_LIB} : ${OBJECT}
+	${AR} ${LIBFLAGS} $@ $^
+
+${OBJECT} : ${SOURCE}
+	${CC} ${CFLAGS} -o $@ $<
  
 .PHONY: clean
 clean:
