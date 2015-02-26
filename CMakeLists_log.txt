@@ -1,0 +1,9 @@
+# version
+cmake_minimum_required (VERSION 2.8)
+set(LIBS_NAME loglib)
+
+# search the all dirs
+aux_source_directory(. DIR_LIB_SRCS)
+
+# create target
+add_library(${LIBS_NAME} ${DIR_LIB_SRCS})
